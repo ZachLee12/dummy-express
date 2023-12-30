@@ -7,12 +7,19 @@ router.get('/all', (req, res) => {
     res.json({ 'data': allMunicipalities })
 })
 
+router.get('/user/:username', (req, res) => {
+    const username = req.params.username
+    const data = municipalityService.getUserMunicipalities(username)
+    res.json({ 'data': data })
+})
+
 router.get('/indicators', (req, res) => {
     const allMunicipalityIndicator = municipalityService.getAllMunicipalityIndicators()
     res.json({ 'data': allMunicipalityIndicator })
 })
 
-router.get('/indicators/user/:user', (req, res) => {
+router.get('/indicators/user/:username', (req, res) => {
+    const username = req.params.username
     res.json()
 })
 
