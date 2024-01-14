@@ -1,19 +1,9 @@
-const jwt = require('jsonwebtoken')
-const chalk = require('chalk')
-const jwtSecret = 'zach'; //Kennwort
-const middleware1 = (req, res, next) => {
-    console.log(chalk.magenta('[Middleware 1]: I am Middleware 1'))
-    console.log(chalk.magenta('[Middleware 1]: doing Middleware 1 stuff...'))
-    next()
-}
+import pkg from 'jsonwebtoken';
+const { verify } = pkg
 
-const middleware2 = (req, res, next) => {
-    console.log(chalk.cyan('[Middleware 2]: I am Middleware 2'))
-    console.log(chalk.cyan('[Middleware 2]: doing Middleware 2 stuff...'))
-    next()
-}
+const jwtSecret = 'supersecretpassword'; //Kennwort
 
-const verifyToken = (req, res, next) => {
+export const verifyToken = (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     const token = bearerHeader?.split(' ')[1]
     if (!token || token.trim() === '') {
@@ -21,7 +11,7 @@ const verifyToken = (req, res, next) => {
         res.status(401)
         return res.send({ data: res.locals.verify })
     }
-    const payload = jwt.verify(token, jwtSecret, (err, authData) => {
+    const payload = verify(token, jwtSecret, (err, authData) => {
         if (err) {
             console.log(err.message)
             res.locals.verify = err.message
@@ -33,5 +23,3 @@ const verifyToken = (req, res, next) => {
         }
     })
 }
-
-module.exports = { middleware1, verifyToken, middleware2 }
