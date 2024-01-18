@@ -19,19 +19,8 @@ export async function getOneUser(username) {
     return result.rows[0]
 }
 
-export async function getUserMunicipalities(username) {
+export async function getUserResources(username) {
     const result = await client.query(`SELECT * FROM ${postgresSchema}.users WHERE username=$1`, [username])
     const access = result.rows[0].access
-    return access.map(acc => acc.municipality)
-}
-
-export async function getUserIndicators(username) {
-    const result = await client.query(`SELECT * FROM ${postgresSchema}.users WHERE username=$1`, [username])
-    const access = result.rows[0].access
-    return access.map(acc => {
-        return {
-            municipality: acc.municipality,
-            indicators: acc.indicators
-        }
-    })
+    return access
 }
