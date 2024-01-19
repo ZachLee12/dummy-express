@@ -1,11 +1,12 @@
 import pkg from 'jsonwebtoken';
 const { verify } = pkg
-
+import { jwtDecode } from "jwt-decode";
 const jwtSecret = 'supersecretpassword'; //Kennwort
 
 export const verifyToken = (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     const token = bearerHeader?.split(' ')[1]
+    req.token = token
     if (!token || token.trim() === '') {
         res.locals.verify = 'Access denied. No token provided or Invalid token format'
         res.status(401)
@@ -22,4 +23,10 @@ export const verifyToken = (req, res, next) => {
             next() // pass to the next request handler on success
         }
     })
+}
+
+export const extractUserAccessFromToken = (req, res, next) => {
+    const token = req.token
+    req.access = jwtDecode(token).access
+    next()
 }

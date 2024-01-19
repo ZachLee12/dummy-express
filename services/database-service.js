@@ -19,8 +19,29 @@ export async function getOneUser(username) {
     return result.rows[0]
 }
 
-export async function getUserResources(username) {
-    const result = await client.query(`SELECT * FROM ${postgresSchema}.users WHERE username=$1`, [username])
-    const access = result.rows[0].access
-    return access
+export async function getUserResources(username, userAccessFromToken) {
+    const resources = { grouped: [], ungrouped: [] }
+    for (const access of userAccessFromToken) {
+        // because access.grouped is a string boolean, so using '==='
+        if (access.grouped === 'true') {
+            resources.grouped = await getGroupedResources(access.municipality, access.indicators)
+        } else {
+            resources.ungrouped = await getUngroupedResources(access.municipality, access.indicators)
+        }
+    }
+    return resources;
+}
+
+async function getGroupedResources(municipalityName, indicators) {
+    const queryResult = await client.query(`SELECT * FROM ${postgresSchema}.indicatoroverview_dev`)
+    const filterResults = queryResult.rows.filter(row => indicators.includes(row.category.toLowerCase()))
+    const groupedResources = filterResults.map(res => ({ municipality: municipalityName, name: res.name, function: res.functionname }))
+    return groupedResources
+}
+
+async function getUngroupedResources(municipalityName, indicators) {
+    const queryResult = await client.query(`SELECT * FROM ${postgresSchema}.indicatoroverview_dev`)
+    const filterResults = queryResult.rows.filter(row => indicators.includes(row.name.toLowerCase()))
+    const ungroupedResources = filterResults.map(res => ({ municipality: municipalityName, name: res.name, function: res.functionname }))
+    return ungroupedResources
 }
