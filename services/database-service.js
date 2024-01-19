@@ -24,9 +24,15 @@ export async function getUserResources(username, userAccessFromToken) {
     for (const access of userAccessFromToken) {
         // because access.grouped is a string boolean, so using '==='
         if (access.grouped === 'true') {
-            resources.grouped = await getGroupedResources(access.municipality, access.indicators)
+            resources.grouped = [
+                ...resources.grouped,
+                ...await getGroupedResources(access.municipality, access.indicators)
+            ]
         } else {
-            resources.ungrouped = await getUngroupedResources(access.municipality, access.indicators)
+            resources.ungrouped = [
+                ...resources.ungrouped,
+                ...await getUngroupedResources(access.municipality, access.indicators)
+            ]
         }
     }
     return resources;
