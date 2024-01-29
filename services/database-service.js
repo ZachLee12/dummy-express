@@ -22,8 +22,7 @@ export async function getOneUser(username) {
 export async function getUserResources(username, userAccessFromToken) {
     const resources = { grouped: [], ungrouped: [] }
     for (const access of userAccessFromToken) {
-        // because access.grouped is a string boolean, so using '==='
-        if (access.grouped === 'true') {
+        if (access.grouped) {
             resources.grouped = [
                 ...resources.grouped,
                 ...await getGroupedResources(access.municipality, access.indicators)

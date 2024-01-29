@@ -3,7 +3,7 @@ const { verify } = pkg
 import { jwtDecode } from "jwt-decode";
 const jwtSecret = 'supersecretpassword'; //Kennwort
 
-export const verifyToken = (req, res, next) => {
+export const verifyTokenFromHeader = (req, res, next) => {
     const bearerHeader = req.headers['authorization'];
     const token = bearerHeader?.split(' ')[1]
     req.token = token
@@ -12,15 +12,24 @@ export const verifyToken = (req, res, next) => {
         res.status(401)
         return res.send({ data: res.locals.verify })
     }
+    verifyToken(token)
+    next()
+}
+
+export const verifyTokenFromUrl = (req, res, next) => {
+    const token = req.query.token
+    req.token = token
+    verifyToken(token)
+    next()
+}
+
+export const verifyToken = (token) => {
     const payload = verify(token, jwtSecret, (err, authData) => {
         if (err) {
             console.log(err.message)
             res.locals.verify = err.message
             res.status(401)
             return res.send({ data: res.locals.verify })
-        } else {
-            res.locals.verify = "GRANT ACCESS TO COP"
-            next() // pass to the next request handler on success
         }
     })
 }
@@ -30,3 +39,6 @@ export const extractUserAccessFromToken = (req, res, next) => {
     req.access = jwtDecode(token).access
     next()
 }
+
+
+
