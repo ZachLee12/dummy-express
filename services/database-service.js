@@ -15,7 +15,7 @@ const client = new Client(postgresConfig)
 await client.connect()
 
 export async function getOneUser(username) {
-    const result = await client.query(`SELECT * FROM ${postgresSchema}.users WHERE username=$1`, [username])
+    const result = await client.query(`SELECT * FROM ${postgresSchema}.users_new WHERE username=$1`, [username])
     return result.rows[0]
 }
 

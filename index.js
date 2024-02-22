@@ -1,7 +1,7 @@
 import express from 'express'
 import cors from 'cors'
 import pkg from 'body-parser'
-import { verifyToken, extractUserAccessFromToken, verifyTokenFromUrl, verifyTokenFromHeader } from './middlewares.js'
+import { extractUserAccessFromToken, verifyTokenFromUrl, verifyTokenFromHeader } from './middlewares.js'
 import { getOneUser, getUserResources } from './services/database-service.js'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
@@ -21,11 +21,11 @@ app.get('/', (req, res) => {
 })
 
 
-app.get('/protected', verifyToken, (req, res) => {
+app.get('/protected', verifyTokenFromHeader, (req, res) => {
     res.send({ data: res.locals.verify })
 })
 
-app.get('/users/username/:username', verifyToken, async (req, res) => {
+app.get('/users/username/:username', verifyTokenFromHeader, async (req, res) => {
     const username = req.params.username
     res.json({ data: await getOneUser(username) })
 })
@@ -52,9 +52,7 @@ app.get('/page',
         const token = req.cookies.token
         if (token) {
             const { username, access } = jwtDecode(token)
-            console.log(access)
             const resources = await getUserResources(username, access)
-            console.log(resources)
 
             const ungroupedListItemsTemplate = resources.ungrouped.reduce((acc, curr) => {
                 return acc + `
@@ -88,7 +86,7 @@ app.get('/page',
             htmlTemplate += accessContainer
             res.send(htmlTemplate)
         } else {
-            res.send("nah")
+            res.send(`<h1>UNAUTHORIZED. You do not have access to this project</h1>`)
         }
     })
 

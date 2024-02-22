@@ -12,24 +12,31 @@ export const verifyTokenFromHeader = (req, res, next) => {
         res.status(401)
         return res.send({ data: res.locals.verify })
     }
-    verifyToken(token)
-    next()
-}
-
-export const verifyTokenFromUrl = (req, res, next) => {
-    const token = req.query.token
-    req.token = token
-    verifyToken(token)
-    next()
-}
-
-export const verifyToken = (token) => {
     const payload = verify(token, jwtSecret, (err, authData) => {
         if (err) {
             console.log(err.message)
             res.locals.verify = err.message
             res.status(401)
             return res.send({ data: res.locals.verify })
+        } else {
+            res.locals.verify = "GRANT ACCESS TO COP"
+            next() // pass to the next request handler on success
+        }
+    })
+}
+
+export const verifyTokenFromUrl = (req, res, next) => {
+    const token = req.query.token
+    req.token = token
+    const payload = verify(token, jwtSecret, (err, authData) => {
+        if (err) {
+            console.log(err.message)
+            res.locals.verify = err.message
+            res.status(401)
+            return res.send({ data: res.locals.verify })
+        } else {
+            res.locals.verify = "GRANT ACCESS TO COP"
+            next() // pass to the next request handler on success
         }
     })
 }
